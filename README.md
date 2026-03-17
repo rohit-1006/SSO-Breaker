@@ -24,20 +24,6 @@
 
 ---
 
-## ⚠️ Legal Disclaimer
-
-> **This tool is designed for authorized security testing and research ONLY.**
->
-> You MUST have explicit written permission from the system owner before
-> running any tests. Unauthorized access to computer systems is illegal
-> under the Computer Fraud and Abuse Act (CFAA), the Computer Misuse Act,
-> and equivalent laws in most jurisdictions.
->
-> The authors assume no liability for misuse of this software.
-> **You are solely responsible for your actions.**
-
----
-
 ## 📖 Overview
 
 SSO Breaker is a comprehensive security testing tool that identifies
@@ -820,6 +806,20 @@ Key areas where contributions are welcome:
 ## 📄 License
 
 MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+## ⚠️ Legal Disclaimer
+
+> **This tool is designed for authorized security testing and research ONLY.**
+>
+> You MUST have explicit written permission from the system owner before
+> running any tests. Unauthorized access to computer systems is illegal
+> under the Computer Fraud and Abuse Act (CFAA), the Computer Misuse Act,
+> and equivalent laws in most jurisdictions.
+>
+> The authors assume no liability for misuse of this software.
+> **You are solely responsible for your actions.**
 
 ---
 
