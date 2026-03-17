@@ -1,0 +1,66 @@
+name: SSO Security Scan
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly Monday 6am UTC
+  workflow_dispatch:
+    inputs:
+      target:
+        description: 'Target URL'
+        required: true
+      module:
+        description: 'Module (saml/oidc/cas/all)'
+        required: true
+        default: 'all'
+
+jobs:
+  sso-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run SSO Breaker
+        env:
+          TARGET_URL: ${{ github.event.inputs.target || secrets.SSO_TARGET_URL }}
+          ACS_URL: ${{ secrets.SSO_ACS_URL }}
+          OIDC_DISCOVERY: ${{ secrets.OIDC_DISCOVERY_URL }}
+        run: |
+          python sso_breaker.py \
+            -t "$TARGET_URL" \
+            --module ${{ github.event.inputs.module || 'all' }} \
+            --acs-url "$ACS_URL" \
+            --oidc-discovery-url "$OIDC_DISCOVERY" \
+            --skip-scope-check \
+            --rate-limit 1.0 \
+            --no-verify-ssl \
+            -o report.json \
+            --format json
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sso-security-report
+          path: report.json
+
+      - name: Check results
+        run: |
+          if [ -f report.json ]; then
+            FINDINGS=$(python -c "import json; d=json.load(open('report.json')); print(d['total'])")
+            if [ "$FINDINGS" -gt 0 ]; then
+              echo "::error::SSO vulnerabilities detected: $FINDINGS findings"
+              CRITICAL=$(python -c "import json; d=json.load(open('report.json')); print(sum(1 for f in d['findings'] if f['severity']=='CRITICAL'))")
+              if [ "$CRITICAL" -gt 0 ]; then
+                echo "::error::$CRITICAL CRITICAL severity findings!"
+              fi
+              exit 1
+            fi
+          fi
